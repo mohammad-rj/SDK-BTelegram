@@ -1,0 +1,20 @@
+{
+    "name": "mohammad-rj/sdk-btelegram",
+    "description": "Native PHP Telegram Bot based on the official Telegram Bot API",
+    "type": "library",
+    "require": {
+        "php": "^8.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "MohammadRj\\SdkBtelegram\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "mohammad-rj",
+            "email": "info@epid.co"
+        }
+    ]
+}
