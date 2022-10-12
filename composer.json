@@ -3,7 +3,7 @@
     "description": "Native PHP Telegram Bot based on the official Telegram Bot API",
     "type": "library",
     "require": {
-        "php": "^8.0"
+        "php": ">=7.0"
     },
     "license": "MIT",
     "autoload": {
