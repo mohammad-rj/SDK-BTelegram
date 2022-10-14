@@ -1,5 +1,5 @@
 <?php
-$nginx_path = '/etc/nginx';
-$nginx_Tbot_config = '/etc/nginx/conf.d/Tbot.conf';
+$nginx_path = '/usr/lib/systemd/system/nginx.service';
+$nginx_BT_config_path = '/etc/nginx/conf.d';
+$nginx_BT_config_name = 'TB.conf';
 $cert_path = '/var/www/cert/Tbot';
-

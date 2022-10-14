@@ -90,8 +90,8 @@ function result($result){
 }
 
 function SetWebhook($botname,$bot_token){
-    global $nginx_path,$nginx_BT_config,$cert_path;
-
+    global $nginx_path,$nginx_BT_config_path,$nginx_BT_config_name,$cert_path;
+    $nginx_BT_config_path_name = "$nginx_BT_config_path/$nginx_BT_config_name";
     $ip_address = getPublicIP();
     $main_path = debug_backtrace()[0]['file'];
     $main_path_split = explode("/",$main_path);
@@ -107,22 +107,22 @@ function SetWebhook($botname,$bot_token){
     if (!file_exists("$cert_path/$botname.crt")) {
         exec("openssl req -x509 -nodes -days 365 -newkey rsa:2048 -sha256 -keyout $cert_path/bot1.key -out $cert_path/bot1.crt -subj '/C=US/ST=New York/L=NYC/O=Tbot/CN=$ip_address'");
     }
-    if (!file_exists($nginx_BT_config)) {
+    if (!file_exists($nginx_BT_config_path_name)) {
         if (!file_exists($nginx_path)) {
             exec(" bash <(curl -s https://gist.githubusercontent.com/mohammad-rj/895b0d5fdf64cd06f33fcdd29a1683a3/raw/install-LEMP.sh)");
         }
+        if (file_exists($nginx_path)) {
 
-
-        $BT_config = 'server {
+            $BT_config = 'server {
         listen         8443 http2 ssl;
         listen         [::]:8443 http2 ssl;
         server_name    _;
-        root           '.$root_path.';
+        root           ' . $root_path . ';
     
         ssl on;
-        ssl_certificate 	'."$cert_path/$botname".'.crt;
-        ssl_certificate_key '."$cert_path/$botname".'.key;
-        ssl_dhparam         '."$cert_path/".'dhparam.pem;
+        ssl_certificate 	' . "$cert_path/$botname" . '.crt;
+        ssl_certificate_key ' . "$cert_path/$botname" . '.key;
+        ssl_dhparam         ' . "$cert_path/" . 'dhparam.pem;
     
         ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
         ssl_prefer_server_ciphers on;
@@ -154,12 +154,17 @@ function SetWebhook($botname,$bot_token){
         }
     }';
 
-        file_put_contents($nginx_BT_config,$BT_config);
-        exec("systemctl restart nginx");
+            file_put_contents($nginx_BT_config_path_name, $BT_config);
+            exec("systemctl restart nginx");
+        }
     }
 
-    exec("curl -F 'url=https://$ip_address:8443/$file_path' -F 'certificate=@$cert_path/$botname.crt' https://api.telegram.org/bot$bot_token/setWebhook > /dev/null 2>&1 &");
+    $root_path = get_root($nginx_BT_config_path_name);
+    $file_path = str_replace("$root_path",'',$main_path);
 
+//    exec("curl -F 'url=https://$ip_address:8443$file_path' -F 'certificate=@$cert_path/$botname.crt' https://api.telegram.org/bot$bot_token/setWebhook > /dev/null 2>&1 &");
+    $resulat = exec("curl -F 'url=https://$ip_address:8443$file_path' -F 'certificate=@$cert_path/$botname.crt' https://api.telegram.org/bot$bot_token/setWebhook");
+    echo "$resulat\n";
 }
 
 function rmkdir($path) {
@@ -201,6 +206,16 @@ function getPublicIP() {
     $ip = json_decode($output, true);
 
     return $ip['origin'];
+}
+
+function get_root($nginx_BT_config){
+    $lines_array = file($nginx_BT_config);
+    $root = "root";
+    foreach($lines_array as $line) {
+        if(str_contains($line, $root)) {
+            return trim(str_replace($root,'',explode(";", $line)[0]));
+        }
+    }
 }
 
 class BT_DownloadFile1 //save directly on hard direve
